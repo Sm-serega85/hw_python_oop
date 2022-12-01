@@ -1,19 +1,22 @@
+from dataclasses import asdict, dataclass
+
+
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
-    def __init__(self, training_type, duration,
-                 distance, speed, calories) -> None:
-        self.training_type = training_type
-        self.duration = duration
-        self.distance = distance
-        self.speed = speed
-        self.calories = calories
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
+    statistics = ('Тип тренировки: {training_type}; '
+                  'Длительность: {duration:.3f} ч.; '
+                  'Дистанция: {distance:.3f} км; '
+                  'Ср. скорость: {speed:.3f} км/ч; '
+                  'Потрачено ккал: {calories:.3f}.')
 
     def get_message(self) -> str:
-        return (f'Тип тренировки: {self.training_type}; '
-                f'Длительность: {self.duration:.3f} ч.; '
-                f'Дистанция: {self.distance:.3f} км; '
-                f'Ср. скорость: {self.speed:.3f} км/ч; '
-                f'Потрачено ккал: {self.calories:.3f}.')
+        return self.statistics.format(**asdict(self))
 
 
 class Training:
@@ -51,7 +54,6 @@ class Training:
 
 class Swimming(Training):
     """Тренировка: плавание."""
-
     CALORIES_MEAN_SPEED_SHIFT = 1.1
     CALORIES_WEIGHT_MULTIPLIER = 2
     LEN_STEP = 1.38
@@ -62,13 +64,13 @@ class Swimming(Training):
         self.length_pool = length_pool
         self.count_pool = count_pool
 
-    """Расчёт средней скорости плавца"""
     def get_mean_speed(self) -> float:
+        """Расчёт средней скорости плавца"""
         return (self.length_pool * self.count_pool / self.M_IN_KM
                 / self.duration)
 
-    """Расход калорий при плавание"""
     def get_spent_calories(self) -> float:
+        """Расход калорий при плавание"""
         return ((self.get_mean_speed() + self.CALORIES_MEAN_SPEED_SHIFT)
                 * self.CALORIES_WEIGHT_MULTIPLIER
                 * self.weight * self.duration)
@@ -76,12 +78,11 @@ class Swimming(Training):
 
 class Running(Training):
     """Тренировка: бег."""
-
     CALORIES_MEAN_SPEED_MULTIPLIER = 18
     CALORIES_MEAN_SPEED_SHIFT = 1.79
 
-    """Расход калорий при беге."""
     def get_spent_calories(self) -> float:
+        """Расход калорий при беге."""
         return ((self.CALORIES_MEAN_SPEED_MULTIPLIER
                 * self.get_mean_speed()
                 + self.CALORIES_MEAN_SPEED_SHIFT)
@@ -91,7 +92,6 @@ class Running(Training):
 
 class SportsWalking(Training):
     """Тренировка: спортивная ходьба."""
-
     CALORIES_WEIGHT_MULTIPLIER = 0.035
     CALORIES_SPEED_HEIGHT_MULTIPLIER = 0.029
     KMH_IN_MSEC = 0.278
@@ -102,8 +102,8 @@ class SportsWalking(Training):
         super().__init__(action, duration, weight)
         self.height = height
 
-    """Расход калорий при спортивной ходьбе."""
     def get_spent_calories(self) -> float:
+        """Расход калорий при спортивной ходьбе."""
         return ((self.CALORIES_WEIGHT_MULTIPLIER
                 * self.weight + ((self.get_mean_speed()
                  * self.KMH_IN_MSEC) ** 2 / (self.height / self.CM_IN_M))
